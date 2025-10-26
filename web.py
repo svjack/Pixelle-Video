@@ -262,14 +262,14 @@ def render_advanced_settings(config_manager: ConfigManager):
             with st.container(border=True):
                 st.markdown(f"**{tr('settings.image.title')}**")
                 
-                # Get current configuration
-                comfykit_config = config_manager.config.get("image", {}).get("comfykit", {})
+                # Get current configuration (flat structure)
+                image_config = config_manager.config.get("image", {})
                 
                 # Local/Self-hosted ComfyUI configuration
                 st.markdown(f"**{tr('settings.image.local_title')}**")
                 comfyui_url = st.text_input(
                     tr("settings.image.comfyui_url"),
-                    value=comfykit_config.get("comfyui_url", "http://127.0.0.1:8188"),
+                    value=image_config.get("comfyui_url", "http://127.0.0.1:8188"),
                     help=tr("settings.image.comfyui_url_help"),
                     key="comfyui_url_input"
                 )
@@ -292,7 +292,7 @@ def render_advanced_settings(config_manager: ConfigManager):
                 st.markdown(f"**{tr('settings.image.cloud_title')}**")
                 runninghub_api_key = st.text_input(
                     tr("settings.image.runninghub_api_key"),
-                    value=comfykit_config.get("runninghub_api_key", ""),
+                    value=image_config.get("runninghub_api_key", ""),
                     type="password",
                     help=tr("settings.image.runninghub_api_key_help"),
                     key="runninghub_api_key_input"
@@ -311,15 +311,12 @@ def render_advanced_settings(config_manager: ConfigManager):
                     if llm_api_key and llm_base_url and llm_model:
                         config_manager.set_llm_config(llm_api_key, llm_base_url, llm_model)
                     
-                    # Save Image configuration (both local and cloud can be configured)
-                    config_manager.config["image"]["default"] = "comfykit"
-                    image_config = {}
+                    # Save Image configuration (flat structure)
+                    config_manager.config["image"]["default"] = "default"
                     if comfyui_url:
-                        image_config["comfyui_url"] = comfyui_url
+                        config_manager.config["image"]["comfyui_url"] = comfyui_url
                     if runninghub_api_key:
-                        image_config["runninghub_api_key"] = runninghub_api_key
-                    if image_config:
-                        config_manager.config["image"]["comfykit"] = image_config
+                        config_manager.config["image"]["runninghub_api_key"] = runninghub_api_key
                     
                     # Save to file
                     config_manager.save()

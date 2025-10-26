@@ -46,43 +46,16 @@ llm:
   model: ""  # Model name
 
 # ==================== TTS Configuration ====================
-tts:
-  default: edge
-  
-  # Edge TTS - Free, good quality
-  edge:
-    # No configuration needed
-  
-  # Azure TTS - Premium quality (optional)
-  # azure:
-  #   api_key: your_azure_key
-  #   region: eastus
-  #   voice: zh-CN-XiaoxiaoNeural
+# TTS uses Edge TTS by default (free, no configuration needed)
+# Optional: Override default voice in code using voice parameter
 
 # ==================== Image Generation Configuration ====================
+# Image generation uses ComfyUI workflows
+# Workflows are auto-discovered from workflows/image_*.json files
 image:
-  default: comfykit
-  
-  # ComfyKit - Local or cloud ComfyUI
-  comfykit:
-    comfyui_url: http://127.0.0.1:8188  # Local ComfyUI server
-    # runninghub_api_key: ""             # Optional: RunningHub cloud API key
-
-# ==================== External MCP Servers (Optional) ====================
-mcp_servers: []
-  # Example: Add custom MCP server
-  # - name: custom_llm_server
-  #   url: http://localhost:8080/mcp
-  #   protocol: sse
-  #   enabled: true
-  #   description: My custom LLM server
-  
-  # Example: Add Pixelle MCP server
-  # - name: pixelle
-  #   url: http://localhost:8888/mcp
-  #   protocol: sse
-  #   enabled: false
-  #   description: Pixelle image generation
+  default: default  # Default preset name (uses workflows/image_default.json)
+  comfyui_url: http://127.0.0.1:8188  # Local ComfyUI server
+  # runninghub_api_key: ""             # Optional: RunningHub cloud API key
 
 # ==================== Notes ====================
 # 1. LLM Configuration:
@@ -92,12 +65,21 @@ mcp_servers: []
 #    - Switch LLM: just copy-paste different values from comments
 #    - WebUI provides quick preset selection
 #
-# 2. Ollama (Recommended for Privacy):
+# 2. TTS Configuration:
+#    - No configuration needed, uses Edge TTS by default (free)
+#    - Override voice in code: await reelforge.tts(text="...", voice="zh-CN-XiaoxiaoNeural")
+#
+# 3. Image Generation:
+#    - Add workflow files: workflows/image_*.json
+#    - Auto-discovered presets: workflows/image_flux.json -> preset="flux"
+#    - Default preset: workflows/image_default.json
+#
+# 4. Ollama (Recommended for Privacy):
 #    - FREE: No API costs
 #    - PRIVATE: Data never leaves your machine
 #    - Install: https://ollama.com/download
 #    - Usage: ollama pull llama3.2
 #
-# 3. Security:
+# 5. Security:
 #    - Never commit config.yaml to version control
 #    - All sensitive data (API keys) should stay local
