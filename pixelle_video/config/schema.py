@@ -23,7 +23,7 @@ class ImageSubConfig(BaseModel):
     """Image-specific configuration (under comfyui.image)"""
     default_workflow: Optional[str] = Field(default=None, description="Default image workflow (optional)")
     prompt_prefix: str = Field(
-        default="Minimalist black-and-white stick figure illustration on a plain white background, clean thin lines, simple sketch style",
+        default="Minimalist black-and-white matchstick figure style illustration, clean lines, simple sketch style",
         description="Prompt prefix for all image generation"
     )
 
