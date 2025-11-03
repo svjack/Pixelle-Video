@@ -262,6 +262,42 @@ def get_all_templates_with_info() -> List[TemplateInfo]:
     return result
 
 
+def get_templates_grouped_by_size() -> dict:
+    """
+    Get templates grouped by size
+    
+    Returns:
+        Dict with size as key, list of TemplateInfo as value
+        Ordered by orientation priority: portrait > landscape > square
+    
+    Example:
+        >>> grouped = get_templates_grouped_by_size()
+        >>> for size, templates in grouped.items():
+        ...     print(f"Size: {size}")
+        ...     for t in templates:
+        ...         print(f"  - {t.display_info.name}")
+    """
+    from collections import defaultdict
+    
+    templates = get_all_templates_with_info()
+    grouped = defaultdict(list)
+    
+    for t in templates:
+        grouped[t.display_info.size].append(t)
+    
+    # Sort groups by orientation priority: portrait > landscape > square
+    orientation_priority = {'portrait': 0, 'landscape': 1, 'square': 2}
+    
+    sorted_grouped = {}
+    for size in sorted(grouped.keys(), key=lambda s: (
+        orientation_priority.get(grouped[s][0].display_info.orientation, 3),
+        s
+    )):
+        sorted_grouped[size] = sorted(grouped[size], key=lambda t: t.display_info.name)
+    
+    return sorted_grouped
+
+
 def resolve_template_path(template_input: Optional[str]) -> str:
     """
     Resolve template input to full path with validation

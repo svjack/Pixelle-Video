@@ -68,11 +68,12 @@
     "template.selector": "Template Selection",
     "template.select": "Select Template",
     "template.select_help": "Select template and video size",
+    "template.separator_selected": "Please select a specific template, not the group header",
     "template.default": "Default",
     "template.modern": "Modern",
     "template.neon": "Neon",
     "template.what": "Controls the visual layout and design style of each frame (title, text, image arrangement)",
-    "template.how": "Place .html template files in the templates/ folder for automatic detection. Supports custom CSS styles",
+    "template.how": "Place .html template files in templates/SIZE/ directories (e.g., templates/1080x1920/). Templates are automatically grouped by size. Custom CSS styles are supported",
     "template.size_info": "Template Size",
     
     "orientation.portrait": "Portrait",

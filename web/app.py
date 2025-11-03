@@ -667,52 +667,72 @@ def main():
                 st.markdown(tr("template.how"))
             
             # Import template utilities
-            from pixelle_video.utils.template_util import get_all_templates_with_info
+            from pixelle_video.utils.template_util import get_templates_grouped_by_size
             
-            # Get all templates with their info
-            all_templates = get_all_templates_with_info()
+            # Get templates grouped by size
+            grouped_templates = get_templates_grouped_by_size()
             
-            if not all_templates:
+            if not grouped_templates:
                 st.error("No templates found. Please ensure templates are in templates/ directory with proper structure (e.g., templates/1080x1920/default.html).")
                 st.stop()
             
-            # Build display names with i18n
+            # Build display options with group separators
             ORIENTATION_I18N = {
                 'portrait': tr('orientation.portrait'),
                 'landscape': tr('orientation.landscape'),
                 'square': tr('orientation.square')
             }
             
-            display_options = {}
-            for item in all_templates:
-                info = item.display_info
-                name = info.name
-                orientation = ORIENTATION_I18N.get(info.orientation, info.orientation)
-                
-                # Always show dimensions for standardization
-                display_name = f"{name} - {orientation}（{info.width}×{info.height}）"
-                
-                display_options[display_name] = item.template_path
-            
-            # Default to "default" portrait if exists
-            display_names = list(display_options.keys())
+            display_options = []
+            template_path_map = {}
             default_index = 0
-            for idx, name in enumerate(display_names):
-                if "default" in name.lower() and tr('orientation.portrait') in name:
-                    default_index = idx
-                    break
+            current_index = 0
             
-            # Single dropdown with formatted names
+            for size, templates in grouped_templates.items():
+                if not templates:
+                    continue
+                
+                # Get orientation from first template in group
+                orientation = ORIENTATION_I18N.get(
+                    templates[0].display_info.orientation, 
+                    templates[0].display_info.orientation
+                )
+                width = templates[0].display_info.width
+                height = templates[0].display_info.height
+                
+                # Add group separator
+                separator = f"─── {orientation} {width}×{height} ───"
+                display_options.append(separator)
+                current_index += 1
+                
+                # Add templates in this group
+                for t in templates:
+                    display_name = f"  {t.display_info.name}"
+                    display_options.append(display_name)
+                    template_path_map[display_name] = t.template_path
+                    
+                    # Set default to first "default.html" in portrait orientation
+                    if default_index == 0 and "default.html" in t.display_info.name and t.display_info.orientation == 'portrait':
+                        default_index = current_index
+                    
+                    current_index += 1
+            
+            # Dropdown with grouped display
             selected_display_name = st.selectbox(
                 tr("template.select"),
-                display_names,
+                display_options,
                 index=default_index,
                 label_visibility="collapsed",
                 help=tr("template.select_help")
             )
             
+            # Check if separator is selected (shouldn't happen, but handle it)
+            if selected_display_name.startswith("───"):
+                st.warning(tr("template.separator_selected"))
+                st.stop()
+            
             # Get full template path
-            frame_template = display_options[selected_display_name]
+            frame_template = template_path_map.get(selected_display_name)
             
             # Template preview expander
             with st.expander(tr("template.preview_title"), expanded=False):

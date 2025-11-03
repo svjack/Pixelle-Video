@@ -68,11 +68,12 @@
     "template.selector": "模板选择",
     "template.select": "选择模板",
     "template.select_help": "选择模板和视频尺寸",
+    "template.separator_selected": "请选择具体的模板，而不是分组标题",
     "template.default": "默认",
     "template.modern": "现代",
     "template.neon": "霓虹",
     "template.what": "控制视频每一帧的视觉布局和设计风格（标题、文本、图片的排版样式）",
-    "template.how": "将 .html 模板文件放入 templates/ 文件夹即可自动识别。支持自定义 CSS 样式",
+    "template.how": "将 .html 模板文件放入 templates/尺寸/ 目录（如 templates/1080x1920/），系统会自动按尺寸分组。支持自定义 CSS 样式",
     "template.size_info": "模板尺寸",
     
     "orientation.portrait": "竖屏",
