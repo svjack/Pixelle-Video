@@ -72,11 +72,9 @@ class VideoGeneratorService:
         image_workflow: Optional[str] = None,
         
         # === Video Parameters ===
-        video_width: int = 1080,
-        video_height: int = 1920,
         video_fps: int = 30,
         
-        # === Frame Template ===
+        # === Frame Template (determines video size) ===
         frame_template: Optional[str] = None,
         
         # === Image Style ===
@@ -128,12 +126,11 @@ class VideoGeneratorService:
             image_height: Generated image height (default 1024)
             image_workflow: Image workflow filename (e.g., "image_flux.json", None = use default)
             
-            video_width: Final video width (default 1080)
-            video_height: Final video height (default 1920)
             video_fps: Video frame rate (default 30)
             
-            frame_template: HTML template filename or path (None = use default template)
-                           e.g., "default.html", "modern.html", "neon.html", or custom path
+            frame_template: HTML template path with size (None = use default "1080x1920/default.html")
+                           Format: "SIZExSIZE/template.html" (e.g., "1080x1920/default.html", "1920x1080/modern.html")
+                           Video size is automatically determined from template path
             
             prompt_prefix: Image prompt prefix (overrides config.yaml if provided)
                           e.g., "anime style, vibrant colors" or "" for no prefix
@@ -220,8 +217,6 @@ class VideoGeneratorService:
             max_narration_words=max_narration_words,
             min_image_prompt_words=min_image_prompt_words,
             max_image_prompt_words=max_image_prompt_words,
-            video_width=video_width,
-            video_height=video_height,
             video_fps=video_fps,
             voice_id=voice_id,
             tts_workflow=tts_workflow,
@@ -230,7 +225,7 @@ class VideoGeneratorService:
             image_width=image_width,
             image_height=image_height,
             image_workflow=image_workflow,
-            frame_template=frame_template or "default.html"
+            frame_template=frame_template or "1080x1920/default.html"
         )
         
         # Create storyboard

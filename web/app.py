@@ -666,23 +666,48 @@ def main():
                 st.markdown(f"**{tr('help.how')}**")
                 st.markdown(tr("template.how"))
             
-            # Dynamically scan templates folder for HTML files
-            templates_folder = Path("templates")
-            template_files = []
-            if templates_folder.exists():
-                template_files = sorted([f.name for f in templates_folder.glob("*.html")])
+            # Import template utilities
+            from pixelle_video.utils.template_util import list_available_sizes, list_templates_for_size
+            
+            # Step 1: Select video size
+            VIDEO_SIZE_OPTIONS = {
+                "📱 竖屏视频 (1080×1920)": "1080x1920",
+                "🖥 横屏视频 (1920×1080)": "1920x1080",
+                "⬜ 方形视频 (1080×1080)": "1080x1080",
+            }
+            
+            # Filter available sizes (only show sizes that exist)
+            available_sizes = list_available_sizes()
+            available_size_options = {k: v for k, v in VIDEO_SIZE_OPTIONS.items() if v in available_sizes}
+            
+            if not available_size_options:
+                st.error("No template sizes found. Please ensure templates are in correct directory structure.")
+                st.stop()
+            
+            selected_size_label = st.selectbox(
+                tr("template.video_size"),
+                list(available_size_options.keys()),
+                label_visibility="collapsed"
+            )
+            selected_size = available_size_options[selected_size_label]
+            
+            # Step 2: Select template for the chosen size
+            template_files = list_templates_for_size(selected_size)
             
             # Default to default.html if exists, otherwise first option
             default_template_index = 0
             if "default.html" in template_files:
                 default_template_index = template_files.index("default.html")
             
-            frame_template = st.selectbox(
-                "Template",
+            template_name = st.selectbox(
+                tr("template.style"),
                 template_files if template_files else ["default.html"],
                 index=default_template_index,
                 label_visibility="collapsed"
             )
+            
+            # Combine size and template name to get full path
+            frame_template = f"{selected_size}/{template_name}"
             
             # Template preview expander
             with st.expander(tr("template.preview_title"), expanded=False):
@@ -709,26 +734,10 @@ def main():
                         key="preview_text"
                     )
                 
-                # Size settings in a compact row
-                col3, col4 = st.columns(2)
-                with col3:
-                    preview_width = st.number_input(
-                        tr("template.preview_param_width"), 
-                        value=1080, 
-                        min_value=100, 
-                        max_value=4096,
-                        step=10,
-                        key="preview_width"
-                    )
-                with col4:
-                    preview_height = st.number_input(
-                        tr("template.preview_param_height"), 
-                        value=1920, 
-                        min_value=100, 
-                        max_value=4096,
-                        step=10,
-                        key="preview_height"
-                    )
+                # Info: Size is auto-determined from template
+                from pixelle_video.utils.template_util import parse_template_size
+                template_width, template_height = parse_template_size(f"templates/{frame_template}")
+                st.info(f"📐 {tr('template.size_info')}: {template_width} × {template_height}")
                 
                 # Preview button
                 if st.button(tr("template.preview_button"), key="btn_preview_template", use_container_width=True):
@@ -736,17 +745,15 @@ def main():
                         try:
                             from pixelle_video.services.frame_html import HTMLFrameGenerator
                             
-                            # Use the currently selected template
+                            # Use the currently selected template (size is auto-parsed)
                             template_path = f"templates/{frame_template}"
                             generator = HTMLFrameGenerator(template_path)
                             
-                            # Generate preview
+                            # Generate preview (size is auto-determined from template)
                             preview_path = run_async(generator.generate_frame(
                                 title=preview_title,
                                 text=preview_text,
-                                image=preview_image,
-                                width=preview_width,
-                                height=preview_height
+                                image=preview_image
                             ))
                             
                             # Display preview
@@ -857,11 +864,17 @@ def main():
                     
                     # Video information (compact display)
                     file_size_mb = result.file_size / (1024 * 1024)
+                    
+                    # Parse video size from template path
+                    from pixelle_video.utils.template_util import parse_template_size, resolve_template_path
+                    template_path = resolve_template_path(result.storyboard.config.frame_template)
+                    video_width, video_height = parse_template_size(template_path)
+                    
                     info_text = (
                         f"⏱️ {result.duration:.1f}s   "
                         f"📦 {file_size_mb:.2f}MB   "
                         f"🎬 {len(result.storyboard.frames)}{tr('info.scenes_unit')}   "
-                        f"📐 {result.storyboard.config.video_width}x{result.storyboard.config.video_height}"
+                        f"📐 {video_width}x{video_height}"
                     )
                     st.caption(info_text)
                     

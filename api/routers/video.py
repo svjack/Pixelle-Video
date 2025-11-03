@@ -65,8 +65,6 @@ async def generate_video_sync(
             image_width=request_body.image_width,
             image_height=request_body.image_height,
             image_workflow=request_body.image_workflow,
-            video_width=request_body.video_width,
-            video_height=request_body.video_height,
             video_fps=request_body.video_fps,
             frame_template=request_body.frame_template,
             prompt_prefix=request_body.prompt_prefix,

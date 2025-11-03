@@ -37,12 +37,13 @@ class VideoGenerateRequest(BaseModel):
     image_workflow: Optional[str] = Field(None, description="Custom image workflow")
     
     # === Video Parameters ===
-    video_width: int = Field(1080, description="Video width")
-    video_height: int = Field(1920, description="Video height")
     video_fps: int = Field(30, ge=15, le=60, description="Video FPS")
     
-    # === Frame Template ===
-    frame_template: Optional[str] = Field(None, description="HTML template name (e.g., 'default.html')")
+    # === Frame Template (determines video size) ===
+    frame_template: Optional[str] = Field(
+        None, 
+        description="HTML template path with size (e.g., '1080x1920/default.html'). Video size is auto-determined from template."
+    )
     
     # === Image Style ===
     prompt_prefix: Optional[str] = Field(None, description="Image style prefix")

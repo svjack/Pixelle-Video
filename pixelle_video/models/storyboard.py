@@ -20,9 +20,7 @@ class StoryboardConfig:
     min_image_prompt_words: int = 30           # Min image prompt word count
     max_image_prompt_words: int = 60           # Max image prompt word count
     
-    # Video parameters
-    video_width: int = 1080                    # Video width
-    video_height: int = 1920                   # Video height (9:16 portrait)
+    # Video parameters (fps only, size is determined by frame template)
     video_fps: int = 30                        # Frame rate
     
     # Audio parameters
@@ -36,8 +34,8 @@ class StoryboardConfig:
     image_height: int = 1024
     image_workflow: Optional[str] = None       # Image workflow filename (None = use default)
     
-    # Frame template
-    frame_template: str = "default.html"       # HTML template name or path (e.g., "default.html", "modern.html")
+    # Frame template (includes size information in path)
+    frame_template: str = "1080x1920/default.html"  # Template path with size (e.g., "1080x1920/default.html")
 
 
 @dataclass

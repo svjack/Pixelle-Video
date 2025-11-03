@@ -197,21 +197,10 @@ class FrameProcessor:
     ) -> str:
         """Compose frame using HTML template"""
         from pixelle_video.services.frame_html import HTMLFrameGenerator
-        from pathlib import Path
+        from pixelle_video.utils.template_util import resolve_template_path
         
-        # Resolve template path
-        template_filename = config.frame_template
-        
-        # Try templates/ directory first
-        template_path = Path(f"templates/{template_filename}")
-        if not template_path.exists():
-            # Try as absolute/relative path
-            template_path = Path(template_filename)
-            if not template_path.exists():
-                raise FileNotFoundError(
-                    f"Template not found: {template_filename}. "
-                    f"Built-in templates: default.html, modern.html, neon.html"
-                )
+        # Resolve template path (handles various input formats)
+        template_path = resolve_template_path(config.frame_template)
         
         # Get content metadata from storyboard
         content_metadata = storyboard.content_metadata if storyboard else None
@@ -224,15 +213,13 @@ class FrameProcessor:
             ext["content_subtitle"] = content_metadata.subtitle or ""
             ext["content_genre"] = content_metadata.genre or ""
         
-        # Generate frame using HTML
-        generator = HTMLFrameGenerator(str(template_path))
+        # Generate frame using HTML (size is auto-parsed from template path)
+        generator = HTMLFrameGenerator(template_path)
         composed_path = await generator.generate_frame(
             title=storyboard.title,
             text=frame.narration,
             image=frame.image_path,
             ext=ext,
-            width=config.video_width,
-            height=config.video_height,
             output_path=output_path
         )
         

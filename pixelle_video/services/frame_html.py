@@ -18,6 +18,8 @@ from pathlib import Path
 from html2image import Html2Image
 from loguru import logger
 
+from pixelle_video.utils.template_util import parse_template_size
+
 
 class HTMLFrameGenerator:
     """
@@ -41,13 +43,17 @@ class HTMLFrameGenerator:
         Initialize HTML frame generator
         
         Args:
-            template_path: Path to HTML template file
+            template_path: Path to HTML template file (e.g., "templates/1080x1920/default.html")
         """
         self.template_path = template_path
         self.template = self._load_template(template_path)
+        
+        # Parse video size from template path
+        self.width, self.height = parse_template_size(template_path)
+        
         self.hti = None  # Lazy init to avoid overhead
         self._check_linux_dependencies()
-        logger.debug(f"Loaded HTML template: {template_path}")
+        logger.debug(f"Loaded HTML template: {template_path} (size: {self.width}x{self.height})")
     
     def _check_linux_dependencies(self):
         """Check Linux system dependencies and warn if missing"""
@@ -197,20 +203,18 @@ class HTMLFrameGenerator:
         text: str,
         image: str,
         ext: Optional[Dict[str, Any]] = None,
-        width: int = 1080,
-        height: int = 1920,
         output_path: Optional[str] = None
     ) -> str:
         """
         Generate frame from HTML template
+        
+        Video size is automatically determined from template path during initialization.
         
         Args:
             title: Video title
             text: Narration text for this frame
             image: Path to AI-generated image (supports relative path, absolute path, or HTTP URL)
             ext: Additional data (content_title, content_author, etc.)
-            width: Frame width in pixels
-            height: Frame height in pixels
             output_path: Custom output path (auto-generated if None)
         
         Returns:
@@ -266,11 +270,11 @@ class HTMLFrameGenerator:
         output_filename = os.path.basename(output_path)
         output_dir = os.path.dirname(output_path)
         
-        # Ensure Html2Image is initialized
-        self._ensure_hti(width, height)
+        # Ensure Html2Image is initialized with template's size
+        self._ensure_hti(self.width, self.height)
         
         # Render HTML to image
-        logger.debug(f"Rendering HTML template to {output_path}")
+        logger.debug(f"Rendering HTML template to {output_path} (size: {self.width}x{self.height})")
         try:
             self.hti.screenshot(
                 html_str=html,
