@@ -25,7 +25,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
 ENV PATH="/root/.local/bin:$PATH"
 
 # Copy dependency files first for better layer caching
-COPY pyproject.toml uv.lock ./
+COPY pyproject.toml uv.lock README.md ./
 
 # Install Python dependencies using uv
 RUN /root/.local/bin/uv sync --frozen --no-dev
