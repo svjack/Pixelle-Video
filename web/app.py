@@ -877,96 +877,22 @@ def main():
                 template_width, template_height = parse_template_size(f"templates/{frame_template}")
                 st.info(f"📐 {tr('template.size_info')}: {template_width} × {template_height}")
                 
-                # Parse and render custom parameters
-                from pixelle_video.services.frame_html import HTMLFrameGenerator
-                template_path = f"templates/{frame_template}"
-                generator = HTMLFrameGenerator(template_path)
-                custom_params = generator.parse_template_parameters()
-                
-                preview_custom_values = {}
-                if custom_params:
-                    st.markdown("📝 " + tr("template.custom_parameters"))
-                    
-                    # Render custom parameter inputs in 2 columns
-                    custom_col1, custom_col2 = st.columns(2)
-                    
-                    param_items = list(custom_params.items())
-                    mid_point = (len(param_items) + 1) // 2
-                    
-                    # Left column parameters
-                    with custom_col1:
-                        for param_name, config in param_items[:mid_point]:
-                            param_type = config['type']
-                            default = config['default']
-                            label = config['label']
-                            
-                            if param_type == 'text':
-                                preview_custom_values[param_name] = st.text_input(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'number':
-                                preview_custom_values[param_name] = st.number_input(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'color':
-                                preview_custom_values[param_name] = st.color_picker(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'bool':
-                                preview_custom_values[param_name] = st.checkbox(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                    
-                    # Right column parameters
-                    with custom_col2:
-                        for param_name, config in param_items[mid_point:]:
-                            param_type = config['type']
-                            default = config['default']
-                            label = config['label']
-                            
-                            if param_type == 'text':
-                                preview_custom_values[param_name] = st.text_input(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'number':
-                                preview_custom_values[param_name] = st.number_input(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'color':
-                                preview_custom_values[param_name] = st.color_picker(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                            elif param_type == 'bool':
-                                preview_custom_values[param_name] = st.checkbox(
-                                    label,
-                                    value=default,
-                                    key=f"preview_custom_{param_name}"
-                                )
-                
                 # Preview button
                 if st.button(tr("template.preview_button"), key="btn_preview_template", use_container_width=True):
                     with st.spinner(tr("template.preview_generating")):
                         try:
-                            # Generate preview (size is auto-determined from template)
+                            from pixelle_video.services.frame_html import HTMLFrameGenerator
+                            
+                            # Use the currently selected template (size is auto-parsed)
+                            template_path = f"templates/{frame_template}"
+                            generator = HTMLFrameGenerator(template_path)
+                            
+                            # Generate preview (use custom parameters from video generation section)
                             preview_path = run_async(generator.generate_frame(
                                 title=preview_title,
                                 text=preview_text,
                                 image=preview_image,
-                                ext=preview_custom_values if preview_custom_values else None
+                                ext=custom_values_for_video if custom_values_for_video else None
                             ))
                             
                             # Display preview
