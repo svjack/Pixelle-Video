@@ -58,34 +58,34 @@ Here are actual cases generated using Pixelle-Video, showcasing video effects wi
 <table>
 <tr>
 <td width="33%">
-<h3>🏛️ Historical & Cultural</h3>
+<h3>🏛️ Historical & Cultural - Fixed Frame</h3>
 <video src="https://github.com/user-attachments/assets/56e0a018-fa99-47eb-a97f-fc2fa8915724" controls width="100%"></video>
 <p align="center"><b>Records of the Grand Historian</b></p>
 </td>
 <td width="33%">
-<h3>💡 Personal Growth</h3>
+<h3>💡 Personal Growth - Voice Clone</h3>
 <video src="https://github.com/user-attachments/assets/1bad9a49-df83-4905-9cc8-9a7640e9c7d8" controls width="100%"></video>
 <p align="center"><b>How to Improve Yourself</b></p>
 </td>
 <td width="33%">
-<h3>🤔 Deep Thinking</h3>
+<h3>🤔 Deep Thinking - Default Template</h3>
 <video src="https://github.com/user-attachments/assets/663b705a-2aea-44bc-b266-4bb27aa255a8" controls width="100%"></video>
 <p align="center"><b>Understanding Antifragility</b></p>
 </td>
 </tr>
 <tr>
 <td width="33%">
-<h3>🌅 Emotional</h3>
+<h3>🌅 Emotional - Voice Clone</h3>
 <video src="https://github.com/user-attachments/assets/4687df95-dd21-4a7b-b01e-f33a7b646644" controls width="100%"></video>
 <p align="center"><b>Winter Sunshine</b></p>
 </td>
 <td width="33%">
-<h3>📖 Novel Commentary</h3>
+<h3>📖 Novel Commentary - Custom Script</h3>
 <video src="https://github.com/user-attachments/assets/d354465e-3fa8-40b4-93e9-61ad75ef0697" controls width="100%"></video>
 <p align="center"><b>Battle Through the Heavens</b></p>
 </td>
 <td width="33%">
-<h3>📚 Health & Wellness</h3>
+<h3>📚 Health & Wellness - Qwen Image Gen</h3>
 <video src="https://github.com/user-attachments/assets/8ac21768-41ce-4d41-acdd-e3dd3eb9725a" controls width="100%"></video>
 <p align="center"><b>Health Knowledge</b></p>
 </td>
@@ -97,12 +97,12 @@ Here are actual cases generated using Pixelle-Video, showcasing video effects wi
 <table>
 <tr>
 <td width="50%">
-<h3>💰 Side Hustle Money Making</h3>
+<h3>💰 Side Hustle Money Making - Movie Template</h3>
 <video src="https://github.com/user-attachments/assets/c9209d4e-73a6-4b82-aaad-cf102248c9e2" controls width="100%"></video>
 <p align="center"><b>Side Hustle Money Making</b></p>
 </td>
 <td width="50%">
-<h3>🏛️ Insights from Zizhi Tongjian</h3>
+<h3>🏛️ Historical Commentary - Custom Template</h3>
 <video src="https://github.com/user-attachments/assets/a767c452-d5f1-4cff-bb34-b80fff0d4c3e" controls width="100%"></video>
 <p align="center"><b>Insights from Zizhi Tongjian</b></p>
 </td>
