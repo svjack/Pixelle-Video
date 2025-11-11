@@ -419,7 +419,7 @@ wheels = [
 
 [[package]]
 name = "comfykit"
-version = "0.1.7"
+version = "0.1.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -429,9 +429,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b8/4e/c5195ac00176c78872e92360d8e31cb6ecbfa1094e6c24afce8b5f8d9b5f/comfykit-0.1.7.tar.gz", hash = "sha256:d35643617afbc2393be18261b5edae504f208ff5b709268f8eb0891d36b6dc2a", size = 48644 }
+sdist = { url = "https://files.pythonhosted.org/packages/76/8f/ca585cf45df2b755ebf735a0b7b94f0cdd62f7f490daf4d9606a22ce4c07/comfykit-0.1.9.tar.gz", hash = "sha256:502748556b1d388052b033bcbb45211878ff61d2d887b65333ad1d14cf977b13", size = 48739 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/da/c71401b55841b47a45caadf3e6214b66158d42796aecc5d7d4476e3765a2/comfykit-0.1.7-py3-none-any.whl", hash = "sha256:e57fa5533d9664af56d29aa871fd566da7e2ecbb7006fa7f1ce80056bbab2efc", size = 51617 },
+    { url = "https://files.pythonhosted.org/packages/fc/b9/65e74e090558fe4028243edca0be3054b8cfbe274f478a8b2ea8c31c4e3e/comfykit-0.1.9-py3-none-any.whl", hash = "sha256:40b51e5d63488f3fe99af2743fa39932bf5dd3f7ade08ebeb375bfa3ceb9b117", size = 51701 },
 ]
 
 [[package]]
@@ -1650,7 +1650,7 @@ wheels = [
 
 [[package]]
 name = "pixelle-video"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "certifi" },
@@ -1681,7 +1681,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "certifi", specifier = ">=2025.10.5" },
-    { name = "comfykit", specifier = ">=0.1.7" },
+    { name = "comfykit", specifier = ">=0.1.9" },
     { name = "edge-tts", specifier = ">=7.2.3" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "fastmcp", specifier = ">=2.0.0" },

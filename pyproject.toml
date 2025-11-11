@@ -1,6 +1,6 @@
 [project]
 name = "pixelle-video"
-version = "0.1.1"
+version = "0.1.2"
 description = "AI-powered video creation platform - Part of Pixelle ecosystem"
 authors = [
     {name = "Pixelle.AI"}
@@ -24,7 +24,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "python-multipart>=0.0.12",
-    "comfykit>=0.1.7",
+    "comfykit>=0.1.9",
 ]
 
 [project.optional-dependencies]
