@@ -504,9 +504,90 @@ class StandardPipeline(BasePipeline):
             logger.info(f"   Size: {file_size / (1024*1024):.2f} MB")
             logger.info(f"   Frames: {len(storyboard.frames)}")
             
+            # ========== Step 7: Persist metadata and storyboard ==========
+            await self._persist_task_data(
+                storyboard=storyboard,
+                result=result,
+                input_params={
+                    "text": text,
+                    "mode": mode,
+                    "title": title,
+                    "n_scenes": n_scenes,
+                    "tts_inference_mode": tts_inference_mode,
+                    "tts_voice": tts_voice,
+                    "voice_id": voice_id,
+                    "tts_workflow": tts_workflow,
+                    "tts_speed": tts_speed,
+                    "ref_audio": ref_audio,
+                    "image_workflow": image_workflow,
+                    "prompt_prefix": prompt_prefix,
+                    "frame_template": frame_template,
+                    "template_params": template_params,
+                    "bgm_path": bgm_path,
+                    "bgm_volume": bgm_volume,
+                    "bgm_mode": bgm_mode,
+                }
+            )
+            
             return result
             
         except Exception as e:
             logger.error(f"❌ Video generation failed: {e}")
             raise
+    
+    async def _persist_task_data(
+        self,
+        storyboard: Storyboard,
+        result: VideoGenerationResult,
+        input_params: dict
+    ):
+        """
+        Persist task metadata and storyboard to filesystem
+        
+        Args:
+            storyboard: Complete storyboard
+            result: Video generation result
+            input_params: Input parameters used for generation
+        """
+        try:
+            task_id = storyboard.config.task_id
+            if not task_id:
+                logger.warning("No task_id in storyboard, skipping persistence")
+                return
+            
+            # Build metadata
+            metadata = {
+                "task_id": task_id,
+                "created_at": storyboard.created_at.isoformat() if storyboard.created_at else None,
+                "completed_at": storyboard.completed_at.isoformat() if storyboard.completed_at else None,
+                "status": "completed",
+                
+                "input": input_params,
+                
+                "result": {
+                    "video_path": result.video_path,
+                    "duration": result.duration,
+                    "file_size": result.file_size,
+                    "n_frames": len(storyboard.frames)
+                },
+                
+                "config": {
+                    "llm_model": self.core.config.get("llm", {}).get("model", "unknown"),
+                    "llm_base_url": self.core.config.get("llm", {}).get("base_url", "unknown"),
+                    "comfyui_url": self.core.config.get("comfyui", {}).get("comfyui_url", "unknown"),
+                    "runninghub_enabled": bool(self.core.config.get("comfyui", {}).get("runninghub_api_key")),
+                }
+            }
+            
+            # Save metadata
+            await self.core.persistence.save_task_metadata(task_id, metadata)
+            logger.info(f"💾 Saved task metadata: {task_id}")
+            
+            # Save storyboard
+            await self.core.persistence.save_storyboard(task_id, storyboard)
+            logger.info(f"💾 Saved storyboard: {task_id}")
+            
+        except Exception as e:
+            logger.error(f"Failed to persist task data: {e}")
+            # Don't raise - persistence failure shouldn't break video generation
 

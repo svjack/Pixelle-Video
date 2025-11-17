@@ -26,6 +26,7 @@ from pixelle_video.services.tts_service import TTSService
 from pixelle_video.services.media import MediaService
 from pixelle_video.services.video import VideoService
 from pixelle_video.services.frame_processor import FrameProcessor
+from pixelle_video.services.persistence import PersistenceService
 from pixelle_video.pipelines.standard import StandardPipeline
 from pixelle_video.pipelines.custom import CustomPipeline
 
@@ -80,6 +81,7 @@ class PixelleVideoCore:
         self.media: Optional[MediaService] = None
         self.video: Optional[VideoService] = None
         self.frame_processor: Optional[FrameProcessor] = None
+        self.persistence: Optional[PersistenceService] = None
         
         # Video generation pipelines (dictionary of pipeline_name -> pipeline_instance)
         self.pipelines = {}
@@ -108,6 +110,7 @@ class PixelleVideoCore:
         self.media = MediaService(self.config)
         self.video = VideoService()
         self.frame_processor = FrameProcessor(self)
+        self.persistence = PersistenceService(output_dir="output")
         
         # 2. Register video generation pipelines
         self.pipelines = {

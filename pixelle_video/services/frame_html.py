@@ -479,7 +479,6 @@ class HTMLFrameGenerator:
         
         # Replace variables in HTML (supports DSL syntax: {{param:type=default}})
         html = self._replace_parameters(self.template, context)
-        logger.debug(f"html--->{html}")
         # Use provided output path or auto-generate
         if output_path is None:
             # Fallback: auto-generate (for backward compatibility)
