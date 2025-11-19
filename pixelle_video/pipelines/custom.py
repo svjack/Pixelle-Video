@@ -86,7 +86,9 @@ class CustomPipeline(BasePipeline):
         custom_param_example: str = "default_value",
         
         # === Standard Parameters (keep these for compatibility) ===
-        voice_id: str = "[Chinese] zh-CN Yunjian",
+        tts_inference_mode: Optional[str] = None,  # "local" or "comfyui"
+        voice_id: Optional[str] = None,  # Deprecated, use tts_voice
+        tts_voice: Optional[str] = None,  # Voice ID for local mode
         tts_workflow: Optional[str] = None,
         tts_speed: float = 1.2,
         ref_audio: Optional[str] = None,
@@ -125,6 +127,29 @@ class CustomPipeline(BasePipeline):
         logger.info("Starting CustomPipeline")
         logger.info(f"Input text length: {len(text)} chars")
         logger.info(f"Custom parameter: {custom_param_example}")
+        
+        # === Handle TTS parameter compatibility ===
+        # Support both old API (voice_id) and new API (tts_inference_mode + tts_voice)
+        final_voice_id = None
+        final_tts_workflow = tts_workflow
+        
+        if tts_inference_mode:
+            # New API from web UI
+            if tts_inference_mode == "local":
+                # Local Edge TTS mode - use tts_voice
+                final_voice_id = tts_voice or "zh-CN-YunjianNeural"
+                final_tts_workflow = None  # Don't use workflow in local mode
+                logger.debug(f"TTS Mode: local (voice={final_voice_id})")
+            elif tts_inference_mode == "comfyui":
+                # ComfyUI workflow mode
+                final_voice_id = None  # Don't use voice_id in ComfyUI mode
+                # tts_workflow already set from parameter
+                logger.debug(f"TTS Mode: comfyui (workflow={final_tts_workflow})")
+        else:
+            # Old API (backward compatibility)
+            final_voice_id = voice_id or tts_voice or "zh-CN-YunjianNeural"
+            # tts_workflow already set from parameter
+            logger.debug(f"TTS Mode: legacy (voice_id={final_voice_id}, workflow={final_tts_workflow})")
         
         # ========== Step 0: Setup ==========
         self._report_progress(progress_callback, "initializing", 0.05)
@@ -240,8 +265,9 @@ class CustomPipeline(BasePipeline):
             min_image_prompt_words=30,
             max_image_prompt_words=60,
             video_fps=video_fps,
-            voice_id=voice_id,
-            tts_workflow=tts_workflow,
+            tts_inference_mode=tts_inference_mode or "local",  # TTS inference mode (CRITICAL FIX)
+            voice_id=final_voice_id,  # Use processed voice_id
+            tts_workflow=final_tts_workflow,  # Use processed workflow
             tts_speed=tts_speed,
             ref_audio=ref_audio,
             image_width=image_width,

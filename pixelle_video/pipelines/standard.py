@@ -251,6 +251,7 @@ class StandardPipeline(BasePipeline):
             min_image_prompt_words=min_image_prompt_words,
             max_image_prompt_words=max_image_prompt_words,
             video_fps=video_fps,
+            tts_inference_mode=tts_inference_mode or "local",  # TTS inference mode (CRITICAL FIX)
             voice_id=final_voice_id,  # Use processed voice_id
             tts_workflow=final_tts_workflow,  # Use processed workflow
             tts_speed=tts_speed,
@@ -288,54 +289,77 @@ class StandardPipeline(BasePipeline):
                 logger.info(f"✅ Split script into {len(narrations)} segments (by lines)")
                 logger.info(f"   Note: n_scenes={n_scenes} is ignored in fixed mode")
             
-            # ========== Step 2: Generate image prompts ==========
-            self._report_progress(progress_callback, "generating_image_prompts", 0.15)
+            # ========== Step 2: Check template type and conditionally generate image prompts ==========
+            # Detect template type to determine if media generation is needed
+            from pathlib import Path
+            from pixelle_video.utils.template_util import get_template_type
             
-            # Override prompt_prefix if provided
-            original_prefix = None
-            if prompt_prefix is not None:
-                image_config = self.core.config.get("comfyui", {}).get("image", {})
-                original_prefix = image_config.get("prompt_prefix")
-                image_config["prompt_prefix"] = prompt_prefix
-                logger.info(f"Using custom prompt_prefix: '{prompt_prefix}'")
+            template_name = Path(config.frame_template).name
+            template_type = get_template_type(template_name)
+            template_requires_media = (template_type in ["image", "video"])
             
-            try:
-                # Create progress callback wrapper for image prompt generation
-                def image_prompt_progress(completed: int, total: int, message: str):
-                    batch_progress = completed / total if total > 0 else 0
-                    overall_progress = 0.15 + (batch_progress * 0.15)
-                    self._report_progress(
-                        progress_callback,
-                        "generating_image_prompts",
-                        overall_progress,
-                        extra_info=message
+            if template_type == "image":
+                logger.info(f"📸 Template requires image generation")
+            elif template_type == "video":
+                logger.info(f"🎬 Template requires video generation")
+            else:  # static
+                logger.info(f"⚡ Static template - skipping media generation pipeline")
+                logger.info(f"   💡 Benefits: Faster generation + Lower cost + No ComfyUI dependency")
+            
+            # Only generate image prompts if template requires media
+            if template_requires_media:
+                self._report_progress(progress_callback, "generating_image_prompts", 0.15)
+                
+                # Override prompt_prefix if provided
+                original_prefix = None
+                if prompt_prefix is not None:
+                    image_config = self.core.config.get("comfyui", {}).get("image", {})
+                    original_prefix = image_config.get("prompt_prefix")
+                    image_config["prompt_prefix"] = prompt_prefix
+                    logger.info(f"Using custom prompt_prefix: '{prompt_prefix}'")
+                
+                try:
+                    # Create progress callback wrapper for image prompt generation
+                    def image_prompt_progress(completed: int, total: int, message: str):
+                        batch_progress = completed / total if total > 0 else 0
+                        overall_progress = 0.15 + (batch_progress * 0.15)
+                        self._report_progress(
+                            progress_callback,
+                            "generating_image_prompts",
+                            overall_progress,
+                            extra_info=message
+                        )
+                    
+                    # Generate base image prompts
+                    base_image_prompts = await generate_image_prompts(
+                        self.llm,
+                        narrations=narrations,
+                        min_words=min_image_prompt_words,
+                        max_words=max_image_prompt_words,
+                        progress_callback=image_prompt_progress
                     )
+                    
+                    # Apply prompt prefix
+                    from pixelle_video.utils.prompt_helper import build_image_prompt
+                    image_config = self.core.config.get("comfyui", {}).get("image", {})
+                    prompt_prefix_to_use = prompt_prefix if prompt_prefix is not None else image_config.get("prompt_prefix", "")
+                    
+                    image_prompts = []
+                    for base_prompt in base_image_prompts:
+                        final_prompt = build_image_prompt(base_prompt, prompt_prefix_to_use)
+                        image_prompts.append(final_prompt)
+                    
+                finally:
+                    # Restore original prompt_prefix
+                    if original_prefix is not None:
+                        image_config["prompt_prefix"] = original_prefix
                 
-                # Generate base image prompts
-                base_image_prompts = await generate_image_prompts(
-                    self.llm,
-                    narrations=narrations,
-                    min_words=min_image_prompt_words,
-                    max_words=max_image_prompt_words,
-                    progress_callback=image_prompt_progress
-                )
-                
-                # Apply prompt prefix
-                from pixelle_video.utils.prompt_helper import build_image_prompt
-                image_config = self.core.config.get("comfyui", {}).get("image", {})
-                prompt_prefix_to_use = prompt_prefix if prompt_prefix is not None else image_config.get("prompt_prefix", "")
-                
-                image_prompts = []
-                for base_prompt in base_image_prompts:
-                    final_prompt = build_image_prompt(base_prompt, prompt_prefix_to_use)
-                    image_prompts.append(final_prompt)
-                
-            finally:
-                # Restore original prompt_prefix
-                if original_prefix is not None:
-                    image_config["prompt_prefix"] = original_prefix
-            
-            logger.info(f"✅ Generated {len(image_prompts)} image prompts")
+                logger.info(f"✅ Generated {len(image_prompts)} image prompts")
+            else:
+                # Static template - skip image prompt generation entirely
+                image_prompts = [None] * len(narrations)
+                logger.info(f"⚡ Skipped image prompt generation (static template)")
+                logger.info(f"   💡 Savings: {len(narrations)} LLM calls + {len(narrations)} media generations")
             
             # ========== Step 3: Create frames ==========
             for i, (narration, image_prompt) in enumerate(zip(narrations, image_prompts)):
