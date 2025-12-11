@@ -8,7 +8,7 @@ If you want to integrate your own ComfyUI workflows, please follow these specifi
 2.  **Parameter Binding**: Find the Text node (CLIP Text Encode or similar text input node) where prompt words need to be dynamically passed by the program.
     -   Edit the **Title** of that node.
     -   Change the title to `$.prompt.text!` or `$.prompt.value!` (depending on the input type accepted by the node).
-    <img width="1242" height="994" alt="image" src="https://github.com/user-attachments/assets/ddb1962c-9272-486f-84ab-8019c3fb5bf4" />
+     <img src="https://github.com/user-attachments/assets/ddb1962c-9272-486f-84ab-8019c3fb5bf4" width="600" alt="参数绑定示例" />
 
     -   *Reference Example: Check the editing method of existing JSON files in the `workflows/selfhost/` directory.*
 3.  **Export Format**: Export the modified workflow as **API Format** (Save (API Format)).
@@ -23,7 +23,8 @@ If you want to test workflows locally that were originally intended for RunningH
 
 1.  **Get ID**: Open the RunningHub workflow file and find the ID.
 2.  **Load Workflow**: Paste the ID onto the end of the RunningHub URL (e.g., https://www.runninghub.cn/workflow/1983513964837543938) to enter the workflow page.
-    <img width="1244" height="664" alt="image" src="https://github.com/user-attachments/assets/e5330b3a-5475-44f2-81e4-057d33fdf71b" />
+  <img src="https://github.com/user-attachments/assets/e5330b3a-5475-44f2-81e4-057d33fdf71b" width="600" alt="参数绑定示例" />
+
 
 3.  **Download to Local**: Download the workflow as a JSON file from the workbench.
 4.  **Local Testing**: Drag the downloaded file into your local ComfyUI canvas for testing and debugging.
