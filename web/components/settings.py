@@ -189,22 +189,24 @@ def render_advanced_settings():
         with col1:
             if st.button(tr("btn.save_config"), use_container_width=True, key="save_config_btn"):
                 try:
-                    # Save LLM configuration
-                    if llm_api_key and llm_base_url and llm_model:
+                    # Validate and save LLM configuration
+                    if not (llm_api_key and llm_base_url and llm_model):
+                        st.error(tr("status.llm_config_incomplete"))
+                    else:
                         config_manager.set_llm_config(llm_api_key, llm_base_url, llm_model)
                     
-                    # Save ComfyUI configuration
+                    # Save ComfyUI configuration (optional fields, always save what's provided)
                     config_manager.set_comfyui_config(
                         comfyui_url=comfyui_url if comfyui_url else None,
                         comfyui_api_key=comfyui_api_key if comfyui_api_key else None,
                         runninghub_api_key=runninghub_api_key if runninghub_api_key else None
                     )
                     
-                    # Save to file
-                    config_manager.save()
-                    
-                    st.success(tr("status.config_saved"))
-                    safe_rerun()
+                    # Only save to file if LLM config is valid
+                    if llm_api_key and llm_base_url and llm_model:
+                        config_manager.save()
+                        st.success(tr("status.config_saved"))
+                        safe_rerun()
                 except Exception as e:
                     st.error(f"{tr('status.save_failed')}: {str(e)}")
         

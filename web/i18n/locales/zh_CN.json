@@ -140,6 +140,8 @@
     "status.video_not_found": "视频文件未找到：{path}",
     "status.config_saved": "✅ 配置已保存",
     "status.config_reset": "✅ 配置已重置为默认值",
+    "status.llm_config_incomplete": "⚠️ LLM 配置不完整，请填写 API Key、Base URL 和 Model",
+    "status.save_failed": "保存失败",
     "status.connection_success": "✅ 连接成功",
     "status.connection_failed": "❌ 连接失败",
     "progress.generating_title": "生成标题...",
