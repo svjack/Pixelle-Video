@@ -8,14 +8,16 @@ Detailed explanation of the `config.yaml` configuration file.
 
 ```yaml
 llm:
-  provider: openai
   api_key: "your-api-key"
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   model: "qwen-plus"
 
 comfyui:
   comfyui_url: "http://127.0.0.1:8188"
+  comfyui_api_key: ""  # ComfyUI API key (optional)
   runninghub_api_key: ""
+  runninghub_concurrent_limit: 1  # Concurrent limit (1-10)
+  runninghub_instance_type: ""  # Instance type (optional, set to "plus" for 48GB VRAM)
   
   image:
     default_workflow: "runninghub/image_flux.json"
@@ -27,15 +29,17 @@ comfyui:
   
   tts:
     default_workflow: "selfhost/tts_edge.json"
+
+template:
+  default_template: "1080x1920/image_default.html"
 ```
 
 ---
 
 ## LLM Configuration
 
-- `provider`: Provider (currently only supports openai-compatible interfaces)
 - `api_key`: API key
-- `base_url`: API service address
+- `base_url`: API service address (supports any OpenAI-compatible interface)
 - `model`: Model name
 
 ---
@@ -44,8 +48,16 @@ comfyui:
 
 ### Basic Configuration
 
-- `comfyui_url`: Local ComfyUI address
-- `runninghub_api_key`: RunningHub API key (optional)
+- `comfyui_url`: Local ComfyUI address (default `http://127.0.0.1:8188`)
+- `comfyui_api_key`: ComfyUI API key (optional, for [Comfy Platform](https://platform.comfy.org/profile/api-keys))
+
+### RunningHub Cloud Configuration
+
+- `runninghub_api_key`: RunningHub API key (required for cloud workflows)
+- `runninghub_concurrent_limit`: Concurrent execution limit (1-10, default 1 for regular members)
+- `runninghub_instance_type`: Instance type (optional)
+  - Empty or unset: Use 24GB VRAM machine
+  - `"plus"`: Use 48GB VRAM machine (suitable for large video generation)
 
 ### Image Configuration
 
@@ -62,6 +74,12 @@ comfyui:
 ### TTS Configuration
 
 - `default_workflow`: Default TTS workflow
+
+---
+
+## Template Configuration
+
+- `default_template`: Default frame template path (e.g., `1080x1920/image_default.html`)
 
 ---
 

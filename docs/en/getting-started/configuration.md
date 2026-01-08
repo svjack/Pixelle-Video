@@ -24,25 +24,29 @@ LLM (Large Language Model) is used to generate video scripts.
 
 ---
 
-## Image Configuration
+## Image/Video Generation Configuration
 
 Two options available:
 
-### Local Deployment (Recommended)
+### Local Deployment
 
 Using local ComfyUI service:
 
 1. Install and start ComfyUI
 2. Enter ComfyUI URL (default `http://127.0.0.1:8188`)
 3. Click "Test Connection" to verify
+4. (Optional) Enter ComfyUI API Key (get from [Comfy Platform](https://platform.comfy.org/profile/api-keys))
 
-### Cloud Deployment
+### Cloud Deployment (Recommended)
 
-Using RunningHub cloud service:
+Using RunningHub cloud service, no local GPU required:
 
 1. Register for a RunningHub account
 2. Obtain API Key
 3. Enter API Key in configuration
+4. Configure advanced options (optional):
+   - **Concurrent Limit**: Set number of simultaneous tasks (1-10, default 1 for regular members)
+   - **Instance Type**: Choose 24GB or 48GB VRAM machine (48GB for large video generation)
 
 ---
 

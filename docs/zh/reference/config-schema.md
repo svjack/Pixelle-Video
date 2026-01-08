@@ -8,14 +8,16 @@
 
 ```yaml
 llm:
-  provider: openai
   api_key: "your-api-key"
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
   model: "qwen-plus"
 
 comfyui:
   comfyui_url: "http://127.0.0.1:8188"
+  comfyui_api_key: ""  # ComfyUI API 密钥（可选）
   runninghub_api_key: ""
+  runninghub_concurrent_limit: 1  # 并发限制 (1-10)
+  runninghub_instance_type: ""  # 实例类型（可选，设为 "plus" 使用 48GB 显存）
   
   image:
     default_workflow: "runninghub/image_flux.json"
@@ -27,15 +29,17 @@ comfyui:
   
   tts:
     default_workflow: "selfhost/tts_edge.json"
+
+template:
+  default_template: "1080x1920/image_default.html"
 ```
 
 ---
 
 ## LLM 配置
 
-- `provider`: 提供商（目前仅支持 openai 兼容接口）
 - `api_key`: API 密钥
-- `base_url`: API 服务地址
+- `base_url`: API 服务地址（支持任何 OpenAI 兼容接口）
 - `model`: 模型名称
 
 ---
@@ -44,8 +48,16 @@ comfyui:
 
 ### 基础配置
 
-- `comfyui_url`: 本地 ComfyUI 地址
-- `runninghub_api_key`: RunningHub API 密钥（可选）
+- `comfyui_url`: 本地 ComfyUI 地址（默认 `http://127.0.0.1:8188`）
+- `comfyui_api_key`: ComfyUI API 密钥（可选，用于 [Comfy Platform](https://platform.comfy.org/profile/api-keys)）
+
+### RunningHub 云端配置
+
+- `runninghub_api_key`: RunningHub API 密钥（使用云端工作流时必填）
+- `runninghub_concurrent_limit`: 并发执行限制（1-10，普通会员默认为 1）
+- `runninghub_instance_type`: 实例类型（可选）
+  - 留空或不设置：使用 24GB 显存机器
+  - `"plus"`: 使用 48GB 显存机器（适合大尺寸视频生成）
 
 ### 图像配置
 
@@ -62,6 +74,12 @@ comfyui:
 ### TTS 配置
 
 - `default_workflow`: 默认 TTS 工作流
+
+---
+
+## 模板配置
+
+- `default_template`: 默认帧模板路径（例如 `1080x1920/image_default.html`）
 
 ---
 
