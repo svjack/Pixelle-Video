@@ -32,6 +32,7 @@ Just input a **topic**, and Pixelle-Video will automatically:
 
 ## 📋 Recent Updates
 
+- ✅ **2026-01-26**: Added the Motion Transfer pipeline — upload a reference video and an image to transfer motion.
 - ✅ **2026-01-14**: Added "Digital Human" and "Image-to-Video" pipelines, multi-language TTS voices support
 - ✅ **2026-01-06**: Added RunningHub 48G VRAM machine support
 - ✅ **2025-12-28**: Configurable RunningHub concurrency limit, improved LLM structured data response handling
@@ -72,6 +73,28 @@ Each step supports flexible customization, allowing you to choose different AI m
 ## 🎬 Video Examples
 
 Here are actual cases generated using Pixelle-Video, showcasing video effects with different themes and styles:
+
+### 📱 Extension Module Video Showcase
+
+<table>
+<tr>
+<td width="33%">
+<h3>👤 AI Digital Avatar</h3>
+<video src="https://github.com/user-attachments/assets/7c122563-c2e0-4dcd-a73c-25ba1d4fa2dd" controls width="100%"></video>
+<p align="center"><b>Korean-speaking AI Avatar</b></p>
+</td>
+<td width="33%">
+<h3>🖼️ Image-to-Video</h3>
+<video src="https://github.com/user-attachments/assets/5b4eef17-07d0-4bde-9748-2ed68cc9888e" controls width="100%"></video>
+<p align="center"><b>Animated Cartoon Video</b></p>
+</td>
+<td width="33%">
+<h3>💃 Motion Transfer</h3>
+<video src="https://github.com/user-attachments/assets/7b1240bc-e965-434c-b343-118ec4793d4f" controls width="100%"></video>
+<p align="center"><b>Dancing Kitten</b></p>
+</td>
+</tr>
+</table>
 
 ### 📱 Portrait Video Showcase
 
