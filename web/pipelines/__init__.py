@@ -27,7 +27,8 @@ from web.pipelines.base import (
 from web.pipelines import standard
 from web.pipelines import asset_based
 from web.pipelines import digital_human
-from web.pipelines import audio_visual
+from web.pipelines import i2v
+from web.pipelines import action_transfer
 
 __all__ = [
     "PipelineUI",

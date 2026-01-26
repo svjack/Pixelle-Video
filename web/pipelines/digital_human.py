@@ -1,6 +1,5 @@
 import os
 import time
-import uuid
 from pathlib import Path
 from typing import Any
 
@@ -9,7 +8,7 @@ from loguru import logger
 import httpx
 from web.i18n import tr, get_language
 from web.pipelines.base import PipelineUI, register_pipeline_ui
-from web.components.content_input import render_bgm_section, render_version_info
+from web.components.content_input import render_version_info
 from web.components.digital_tts_config import render_style_config
 from web.utils.async_helpers import run_async
 from pixelle_video.config import config_manager
@@ -49,21 +48,23 @@ class DigitalHumanPipelineUI(PipelineUI):
         # ====================================================================
         with middle_col:
             # Style configuration ()
+            workflow_path = self.workflow_path_config()
             mode_params = self.render_digital_human_mode(asset_params["character_assets"])
         
-        # # ====================================================================
-        # # Right Column: Output Preview
-        # # ====================================================================
+        # ====================================================================
+        # Right Column: Output Preview
+        # ====================================================================
         with right_col:
             # Combine all parameters
             video_params = {
                 **mode_params,
                 **asset_params,
-                **style_params
+                **style_params,
+                "workflow_path": workflow_path
             }
             
             self._render_output_preview(pixelle_video, video_params)
-    
+
     def render_digital_human_input(self) -> dict:
         """Render digital human character image upload section"""
         with st.container(border=True):
@@ -114,6 +115,68 @@ class DigitalHumanPipelineUI(PipelineUI):
                 st.info(tr("digital_human.assets.character_empty_hint"))
 
             return {"character_assets": character_asset_paths}
+
+    def workflow_path_config(self) -> dict:
+        # Workflow source selection
+        with st.container(border=True):
+            st.markdown(f"**{tr('asset_based.section.source')}**")
+            
+            with st.expander(tr("help.feature_description"), expanded=False):
+                st.markdown(f"**{tr('help.what')}**")
+                st.markdown(tr("asset_based.source.what"))
+                st.markdown(f"**{tr('help.how')}**")
+                st.markdown(tr("asset_based.source.how"))
+            
+            source_options = {
+                "runninghub": tr("asset_based.source.runninghub"),
+                "selfhost": tr("asset_based.source.selfhost")
+            }
+            
+            # Check if RunningHub API key is configured
+            comfyui_config = config_manager.get_comfyui_config()
+            has_runninghub = bool(comfyui_config.get("runninghub_api_key"))
+            has_selfhost = bool(comfyui_config.get("comfyui_url"))
+            
+            # Default to available source
+            if has_runninghub:
+                default_source_index = 0
+            elif has_selfhost:
+                default_source_index = 1
+            else:
+                default_source_index = 0
+            
+            source = st.radio(
+                tr("asset_based.source.select"),
+                options=list(source_options.keys()),
+                format_func=lambda x: source_options[x],
+                index=default_source_index,
+                horizontal=True,
+                key="digital_human_workflow_source",
+                label_visibility="collapsed"
+            )
+            
+            # Show hint based on selection
+            if source == "runninghub":
+                if not has_runninghub:
+                    st.warning(tr("asset_based.source.runninghub_not_configured"))
+                else:
+                    st.info(tr("asset_based.source.runninghub_hint"))
+                    workflow_config = {
+                        "first_workflow_path": "workflows/runninghub/digital_image.json",
+                        "second_workflow_path": "workflows/runninghub/digital_combination.json",
+                        "third_workflow_path": "workflows/runninghub/digital_customize.json"
+                    }
+            else:
+                if not has_selfhost:
+                    st.warning(tr("asset_based.source.selfhost_not_configured"))
+                else:
+                    st.info(tr("asset_based.source.selfhost_hint"))
+                    workflow_config = {
+                        "first_workflow_path": "workflows/selfhost/digital_image.json",
+                        "second_workflow_path": "workflows/selfhost/digital_combination.json",
+                        "third_workflow_path": "workflows/selfhost/digital_customize.json"
+                    }
+            return workflow_config
 
     def render_digital_human_mode(self, character_asset_paths: list) -> dict:
         with st.container(border=True):
@@ -281,6 +344,7 @@ class DigitalHumanPipelineUI(PipelineUI):
                     async def generate_digital_human_video():
                         task_dir, task_id = create_task_output_dir()
                         kit = await pixelle_video._get_or_create_comfykit()
+                        workflow_path = video_params["workflow_path"]
 
                         import json
                         from pathlib import Path
@@ -293,18 +357,32 @@ class DigitalHumanPipelineUI(PipelineUI):
 
                             # TTS
                             audio_path = os.path.join(task_dir, "narration.mp3")
-                            await pixelle_video.tts(
-                                text=generated_text,
-                                output_path=audio_path,
-                                inference_mode="local",  
-                                voice=tts_voice,  
-                                speed=tts_speed
-                            )
+                            tts_inference_mode = video_params.get("tts_inference_mode", "local")
+                            tts_voice = video_params.get("tts_voice")
+                            tts_speed = video_params.get("tts_speed")
+                            tts_workflow = video_params.get("tts_workflow")
+                            ref_audio = video_params.get("ref_audio")
+
+                            tts_kwargs = {
+                                "text": generated_text,
+                                "output_path": audio_path,
+                                "inference_mode": tts_inference_mode
+                            }
+                            if tts_inference_mode == "local":
+                                tts_kwargs["voice"] = tts_voice
+                                tts_kwargs["speed"] = tts_speed
+                            elif tts_inference_mode == "comfyui":
+                                if tts_workflow:
+                                    tts_kwargs["workflow"] = tts_workflow
+                                if ref_audio:
+                                    tts_kwargs["ref_audio"] = ref_audio
+
+                            await pixelle_video.tts(**tts_kwargs)
                             progress_bar.progress(65)
                             status_text.text(tr("progress.concatenating"))
 
                             # Directly call the second workflow
-                            second_workflow_path = Path("workflows/runninghub/digital_combination.json")
+                            second_workflow_path = Path(workflow_path.get("second_workflow_path"))
                             if not second_workflow_path.exists():
                                 raise Exception(f"The second step workflow file does not exist:{second_workflow_path}")
                             with open(second_workflow_path, 'r', encoding='utf-8') as f:
@@ -316,7 +394,7 @@ class DigitalHumanPipelineUI(PipelineUI):
                             if second_workflow_config.get("source") == "runninghub" and "workflow_id" in second_workflow_config:
                                 workflow_input = second_workflow_config["workflow_id"]
                             else:
-                                workflow_input = str(second_workflow_path)
+                                workflow_input = str(second_workflow_config)
                             second_result = await kit.execute(workflow_input, second_workflow_params)
                             # Video Link Extraction
                             generated_video_url = None
@@ -348,9 +426,9 @@ class DigitalHumanPipelineUI(PipelineUI):
                             task_dir, task_id = create_task_output_dir()
                             logger.info(f"[Initialization] Task Directory: {task_dir}")
 
-                            first_workflow_path = Path("workflows/runninghub/digital_image.json")
-                            third_workflow_path = Path("workflows/runninghub/digital_customize.json")
-                            second_workflow_path = Path("workflows/runninghub/digital_combination.json")
+                            first_workflow_path = Path(workflow_path.get("first_workflow_path"))
+                            third_workflow_path = Path(workflow_path.get("third_workflow_path"))
+                            second_workflow_path = Path(workflow_path.get("second_workflow_path"))
                             assert first_workflow_path.exists(), "The first_workflow file does not exist."
                             assert third_workflow_path.exists(), "The third_workflow file does not exist."
                             assert second_workflow_path.exists(), "The  second_workflow file does not exist."
@@ -362,24 +440,40 @@ class DigitalHumanPipelineUI(PipelineUI):
                                 status_text.text(tr("progress.step_image"))
                                 kit = await pixelle_video._get_or_create_comfykit()
                                 workflow_config = json.load(open(workflow_path, 'r', encoding='utf8'))
-                                workflow_input = workflow_config.get("workflow_id", str(workflow_path))
+                                if workflow_config.get("source") == "runninghub" and "workflow_id" in workflow_config:
+                                    workflow_input = workflow_config["workflow_id"]
+                                else:
+                                    workflow_input = str(workflow_config)
                                 combine_image = await kit.execute(workflow_input, workflow_params)
                                 if combine_image.status != "completed":
                                     raise Exception(f"workflow execution failed: {combine_image.msg}")
                                 generated_image_url = getattr(combine_image, "images", [None])[0]
                                 status_text.text(tr("progress.step_audio"))
                                 audio_path = os.path.join(task_dir, "narration.mp3")
-                                await pixelle_video.tts(
-                                    text=goods_text,
-                                    output_path=audio_path,
-                                    inference_mode="local",  
-                                    voice=tts_voice,  
-                                    speed=tts_speed
-                                )
-                                progress_bar.progress(65)
-                                status_text.text(tr("progress.progress.concatenating"))
+                                tts_inference_mode = video_params.get("tts_inference_mode", "local")
+                                tts_voice = video_params.get("tts_voice")
+                                tts_speed = video_params.get("tts_speed")
+                                tts_workflow = video_params.get("tts_workflow")
+                                ref_audio = video_params.get("ref_audio")
 
-                                second_workflow_path = Path("workflows/runninghub/digital_combination.json")
+                                tts_kwargs = {
+                                    "text": generated_text,
+                                    "output_path": audio_path,
+                                    "inference_mode": tts_inference_mode
+                                }
+                                if tts_inference_mode == "local":
+                                    tts_kwargs["voice"] = tts_voice
+                                    tts_kwargs["speed"] = tts_speed
+                                elif tts_inference_mode == "comfyui":
+                                    if tts_workflow:
+                                        tts_kwargs["workflow"] = tts_workflow
+                                    if ref_audio:
+                                        tts_kwargs["ref_audio"] = ref_audio
+
+                                await pixelle_video.tts(**tts_kwargs)
+                                progress_bar.progress(65)
+                                status_text.text(tr("progress.concatenating"))
+
                                 if not second_workflow_path.exists():
                                     raise Exception(f"The second step workflow file does not exist:{second_workflow_path}")
                                 with open(second_workflow_path, 'r', encoding='utf-8') as f:
@@ -391,7 +485,7 @@ class DigitalHumanPipelineUI(PipelineUI):
                                 if second_workflow_config.get("source") == "runninghub" and "workflow_id" in second_workflow_config:
                                     workflow_input = second_workflow_config["workflow_id"]
                                 else:
-                                    workflow_input = str(second_workflow_path)
+                                    workflow_input = str(second_workflow_config)
                                 second_result = await kit.execute(workflow_input, second_workflow_params)
                                 # Video Link Extraction
                                 generated_video_url = None
@@ -425,7 +519,10 @@ class DigitalHumanPipelineUI(PipelineUI):
                                 status_text.text(tr("progress.step_image"))
                                 kit = await pixelle_video._get_or_create_comfykit()
                                 workflow_config = json.load(open(workflow_path, 'r', encoding='utf8'))
-                                workflow_input = workflow_config.get("workflow_id", str(workflow_path))
+                                if workflow_config.get("source") == "runninghub" and "workflow_id" in workflow_config:
+                                    workflow_input = workflow_config["workflow_id"]
+                                else:
+                                    workflow_input = str(workflow_config)
                                 synthesis_result = await kit.execute(workflow_input, workflow_params)
                                 if synthesis_result.status != "completed":
                                     raise Exception(f"workflow execution failed: {synthesis_result.msg}")
@@ -434,17 +531,30 @@ class DigitalHumanPipelineUI(PipelineUI):
                                 
                                 status_text.text(tr("progress.step_audio"))
                                 audio_path = os.path.join(task_dir, "narration.mp3")
-                                await pixelle_video.tts(
-                                    text=generated_text,
-                                    output_path=audio_path,
-                                    inference_mode="local",  
-                                    voice=tts_voice,  
-                                    speed=tts_speed
-                                )
+                                tts_inference_mode = video_params.get("tts_inference_mode", "local")
+                                tts_voice = video_params.get("tts_voice")
+                                tts_speed = video_params.get("tts_speed")
+                                tts_workflow = video_params.get("tts_workflow")
+                                ref_audio = video_params.get("ref_audio")
+
+                                tts_kwargs = {
+                                    "text": generated_text,
+                                    "output_path": audio_path,
+                                    "inference_mode": tts_inference_mode
+                                }
+                                if tts_inference_mode == "local":
+                                    tts_kwargs["voice"] = tts_voice
+                                    tts_kwargs["speed"] = tts_speed
+                                elif tts_inference_mode == "comfyui":
+                                    if tts_workflow:
+                                        tts_kwargs["workflow"] = tts_workflow
+                                    if ref_audio:
+                                        tts_kwargs["ref_audio"] = ref_audio
+
+                                await pixelle_video.tts(**tts_kwargs)
                                 progress_bar.progress(65)
                                 status_text.text(tr("progress.concatenating"))
 
-                                second_workflow_path = Path("workflows/runninghub/digital_combination.json")
                                 if not second_workflow_path.exists():
                                     raise Exception(f"The second step workflow file does not exist:{second_workflow_path}")
                                 with open(second_workflow_path, 'r', encoding='utf-8') as f:
@@ -456,7 +566,7 @@ class DigitalHumanPipelineUI(PipelineUI):
                                 if second_workflow_config.get("source") == "runninghub" and "workflow_id" in second_workflow_config:
                                     workflow_input = second_workflow_config["workflow_id"]
                                 else:
-                                    workflow_input = str(second_workflow_path)
+                                    workflow_input = str(second_workflow_config)
                                 second_result = await kit.execute(workflow_input, second_workflow_params)
                                 # Video Link Extraction
                                 generated_video_url = None
