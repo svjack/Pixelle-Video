@@ -436,7 +436,8 @@ class DigitalHumanPipelineUI(PipelineUI):
                             if goods_text and goods_text.strip():
                                 workflow_path = third_workflow_path
                                 workflow_params = {"firstimage": character_assets[0], "secondimage": goods_assets[0]}
-                                
+                                generated_text = goods_text
+
                                 status_text.text(tr("progress.step_image"))
                                 kit = await pixelle_video._get_or_create_comfykit()
                                 workflow_config = json.load(open(workflow_path, 'r', encoding='utf8'))
