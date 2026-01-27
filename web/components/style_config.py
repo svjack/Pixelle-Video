@@ -22,6 +22,7 @@ from loguru import logger
 
 from web.i18n import tr, get_language
 from web.utils.async_helpers import run_async
+from web.utils.streamlit_helpers import check_and_warn_selfhost_workflow
 from pixelle_video.config import config_manager
 
 
@@ -149,6 +150,9 @@ def render_style_config(pixelle_video):
                 tts_workflow_key = tts_workflow_keys[tts_selected_index]
             else:
                 tts_workflow_key = "selfhost/tts_edge.json"  # fallback
+            
+            # Check and warn for selfhost TTS workflow (auto popup if not confirmed)
+            check_and_warn_selfhost_workflow(tts_workflow_key)
             
             # Reference audio upload (optional, for voice cloning)
             ref_audio_file = st.file_uploader(
@@ -741,6 +745,9 @@ def render_style_config(pixelle_video):
                 workflow_key = workflow_keys[workflow_selected_index]
             else:
                 workflow_key = "runninghub/image_flux.json"  # fallback
+            
+            # Check and warn for selfhost media workflow (auto popup if not confirmed)
+            check_and_warn_selfhost_workflow(workflow_key)
         
             # Get media size from template
             media_width = st.session_state.get('template_media_width')

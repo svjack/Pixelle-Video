@@ -10,6 +10,7 @@ from web.i18n import tr, get_language
 from web.pipelines.base import PipelineUI, register_pipeline_ui
 from web.components.content_input import render_version_info
 from web.utils.async_helpers import run_async
+from web.utils.streamlit_helpers import check_and_warn_selfhost_workflow
 from pixelle_video.config import config_manager
 from pixelle_video.utils.os_util import create_task_output_dir
 
@@ -135,7 +136,10 @@ class ImageToVideoPipelineUI(PipelineUI):
                 workflow_selected_index = workflow_options.index(workflow_display)
                 workflow_key = workflow_keys[workflow_selected_index]
             else:
-                workflow_key = None   
+                workflow_key = None
+            
+            # Check and warn for selfhost workflow (auto popup if not confirmed)
+            check_and_warn_selfhost_workflow(workflow_key)
             
             return {
                 "audio_assets": audio_asset_paths,

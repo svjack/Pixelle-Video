@@ -11,6 +11,7 @@ from web.pipelines.base import PipelineUI, register_pipeline_ui
 from web.components.content_input import render_version_info
 from web.components.digital_tts_config import render_style_config
 from web.utils.async_helpers import run_async
+from web.utils.streamlit_helpers import check_and_warn_selfhost_workflow
 from pixelle_video.config import config_manager
 from pixelle_video.utils.os_util import create_task_output_dir
 
@@ -176,6 +177,10 @@ class DigitalHumanPipelineUI(PipelineUI):
                         "second_workflow_path": "workflows/selfhost/digital_combination.json",
                         "third_workflow_path": "workflows/selfhost/digital_customize.json"
                     }
+                    # Check and warn for selfhost workflows (auto popup if not confirmed)
+                    # Warn for the first workflow as representative
+                    # TODO: need to check if the workflow is valid
+                    # check_and_warn_selfhost_workflow("selfhost/digital_image.json")
             return workflow_config
 
     def render_digital_human_mode(self, character_asset_paths: list) -> dict:

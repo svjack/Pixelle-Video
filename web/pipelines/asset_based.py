@@ -28,6 +28,7 @@ from web.i18n import tr, get_language
 from web.pipelines.base import PipelineUI, register_pipeline_ui
 from web.components.content_input import render_bgm_section, render_version_info
 from web.utils.async_helpers import run_async
+from web.utils.streamlit_helpers import check_and_warn_selfhost_workflow
 from pixelle_video.config import config_manager
 from pixelle_video.models.progress import ProgressEvent
 
@@ -224,6 +225,9 @@ class AssetBasedPipelineUI(PipelineUI):
                     st.warning(tr("asset_based.source.selfhost_not_configured"))
                 else:
                     st.info(tr("asset_based.source.selfhost_hint"))
+                    # Check and warn for selfhost mode (auto popup if not confirmed)
+                    # Use analyse_image.json as representative workflow
+                    check_and_warn_selfhost_workflow("selfhost/analyse_image.json")
         
         # TTS configuration
         with st.container(border=True):
