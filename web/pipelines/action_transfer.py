@@ -237,17 +237,6 @@ class ActionTransferPipelineUI(PipelineUI):
 
             logger.info(f"  - video_params: {video_params}")
 
-            if not image_assets:
-                st.info(tr("action_transfer.assets.image_warning"))
-                st.button(
-                    tr("btn.generate"),
-                    type="primary",
-                    use_container_width=True,
-                    disabled=True,
-                    key="action_transfer_generate_image_disabled"
-                )
-                return
-            
             if not video_assets:
                 st.info(tr("action_transfer.assets.video_warning"))
                 st.button(
@@ -256,6 +245,17 @@ class ActionTransferPipelineUI(PipelineUI):
                     use_container_width=True,
                     disabled=True,
                     key="action_transfer_generate_video_disabled"
+                )
+                return
+
+            if not image_assets:
+                st.info(tr("action_transfer.assets.image_warning"))
+                st.button(
+                    tr("btn.generate"),
+                    type="primary",
+                    use_container_width=True,
+                    disabled=True,
+                    key="action_transfer_generate_image_disabled"
                 )
                 return
 

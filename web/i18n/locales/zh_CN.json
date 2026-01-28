@@ -484,7 +484,7 @@
     "action_transfer.assets.image_upload": "上传迁移动作的图片",
     "action_transfer.assets.image_upload_help": "仅支持单张图片上传，图片为单人时效果最佳",
     "action_transfer.assets.image_sucess": "上传素材成功",
-    "action_transfer.assets.image_empty_hint": "💡 请上传一个动作迁移的参考视频",
+    "action_transfer.assets.image_empty_hint": "💡 请上传一个需要迁移动作的图片",
     "action_transfer.input_text": "视频提示词",
     "action_transfer.input.topic_placeholder" : "输入创作提示词（例如：模仿参考视频跳舞，位置不变，步伐一致且整齐等）",
     "action_transfer.workflow_select": "动作迁移工作流选择（包含本地和runninghub）",
