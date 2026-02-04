@@ -192,9 +192,9 @@ class ActionTransferPipelineUI(PipelineUI):
                         key="prompt_box"
                         )
             
-            iv2_workflows = list_action_transfer_workflows()
-            workflow_options = [wf["display_name"] for wf in iv2_workflows] 
-            workflow_keys = [wf["key"] for wf in iv2_workflows]               
+            transfer_workflows = list_action_transfer_workflows()
+            workflow_options = [wf["display_name"] for wf in transfer_workflows] 
+            workflow_keys = [wf["key"] for wf in transfer_workflows]               
             default_workflow_index = 0
 
             workflow_display = st.selectbox(
@@ -271,7 +271,7 @@ class ActionTransferPipelineUI(PipelineUI):
                 return
 
             # Generate button
-            if st.button(tr("btn.generate"), type="primary", use_container_width=True, key="iv2_generate"):
+            if st.button(tr("btn.generate"), type="primary", use_container_width=True, key="transfer_generate"):
                 if not config_manager.validate():
                     st.error(tr("settings.not_configured"))
                     st.stop()

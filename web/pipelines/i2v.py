@@ -31,16 +31,19 @@ class ImageToVideoPipelineUI(PipelineUI):
         return tr("pipeline.i2v.description")
 
     def render(self, pixelle_video: Any):
-        # Three-column layout
+        # Two-column layout
         left_col,right_col = st.columns([1, 1])
 
         # ====================================================================
-        # Middle Column: Asset Upload
+        # Left Column: Asset Upload
         # ====================================================================
         with left_col:
             asset_params = self.render_audio_visual_input(pixelle_video)
             render_version_info()
 
+        # ====================================================================
+        # Right Column: Output Preview
+        # ====================================================================
         with right_col:
             video_params = {
                 **asset_params
@@ -58,14 +61,14 @@ class ImageToVideoPipelineUI(PipelineUI):
                 st.markdown(f"**{tr('help.how')}**")
                 st.markdown(tr("i2v.assets.how"))
 
-            def list_iv2_workflows():
+            def list_i2v_workflows():
                 result = []
                 for source in ("runninghub", "selfhost"):
                     dir_path = os.path.join("workflows", source)
                     if not os.path.isdir(dir_path):
                         continue
                     for fname in os.listdir(dir_path):
-                        if fname.startswith("iv2_") and fname.endswith(".json"):
+                        if fname.startswith("i2v_") and fname.endswith(".json"):
                             display = f"{fname} - {'Runninghub' if source == 'runninghub' else 'Selfhost'}"
                             result.append({
                                 "key": f"{source}/{fname}",
@@ -119,17 +122,17 @@ class ImageToVideoPipelineUI(PipelineUI):
                         key="audio_box"
                         )
             
-            iv2_workflows = list_iv2_workflows()
-            workflow_options = [wf["display_name"] for wf in iv2_workflows] 
-            workflow_keys = [wf["key"] for wf in iv2_workflows]               
+            i2v_workflows = list_i2v_workflows()
+            workflow_options = [wf["display_name"] for wf in i2v_workflows] 
+            workflow_keys = [wf["key"] for wf in i2v_workflows]               
             default_workflow_index = 0
 
             workflow_display = st.selectbox(
-                tr("iv2.workflow_select"),
+                tr("i2v.workflow_select"),
                 workflow_options if workflow_options else ["No workflow found"],
                 index=default_workflow_index,
                 label_visibility="collapsed",
-                key="iv2_workflow_select"
+                key="i2v_workflow_select"
             )
 
             if workflow_options:
@@ -185,7 +188,7 @@ class ImageToVideoPipelineUI(PipelineUI):
                 return
 
             # Generate button
-            if st.button(tr("btn.generate"), type="primary", use_container_width=True, key="iv2_generate"):
+            if st.button(tr("btn.generate"), type="primary", use_container_width=True, key="i2v_generate"):
                 if not config_manager.validate():
                     st.error(tr("settings.not_configured"))
                     st.stop()

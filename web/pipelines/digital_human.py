@@ -159,24 +159,21 @@ class DigitalHumanPipelineUI(PipelineUI):
                     "second_workflow_path": "workflows/runninghub/digital_combination.json",
                     "third_workflow_path": "workflows/runninghub/digital_customize.json"
                 }
+                if not has_runninghub:
+                    st.warning(tr("asset_based.source.runninghub_not_configured"))
+                else:
+                    st.info(tr("asset_based.source.runninghub_hint"))
             else:
                 workflow_config = {
                     "first_workflow_path": "workflows/selfhost/digital_image.json",
                     "second_workflow_path": "workflows/selfhost/digital_combination.json",
                     "third_workflow_path": "workflows/selfhost/digital_customize.json"
                 }
-            
-            # Show hint based on selection
-            if source == "runninghub":
-                if not has_runninghub:
-                    st.warning(tr("asset_based.source.runninghub_not_configured"))
-                else:
-                    st.info(tr("asset_based.source.runninghub_hint"))
-            else:
                 if not has_selfhost:
                     st.warning(tr("asset_based.source.selfhost_not_configured"))
                 else:
                     st.info(tr("asset_based.source.selfhost_hint"))
+                    
                     # Check and warn for selfhost workflows (auto popup if not confirmed)
                     # Warn for the first workflow as representative
                     # TODO: need to check if the workflow is valid
@@ -319,17 +316,42 @@ class DigitalHumanPipelineUI(PipelineUI):
                     key="digital_human_generate_disabled"
                 )
                 return
-            
-            if not goods_text and not goods_title:
-                st.info(tr("digital_human.assets.select_mode"))
+
+            if mode == "digital" and not goods_assets:
+                st.info(tr("digital_human.assets.goods_warning"))
                 st.button(
                     tr("btn.generate"),
                     type="primary",
                     use_container_width=True,
                     disabled=True,
-                    key="digital_human_generate"
+                    key="digital_human_goods_vaiidation"
                 )
-                return  
+                return
+
+            if mode == "digital" and not (goods_text or goods_title):
+                st.info(tr("digital_human.assets.digital_mode"))
+                st.button(
+                    tr("btn.generate"),
+                    type="primary",
+                    use_container_width=True,
+                    disabled=True,
+                    key="digital_human_digital_disable"
+                )
+                return
+            
+            if mode == "digital" and (goods_text or goods_title):
+                st.warning(tr("digital_human.assets.digital_mode_warning"))
+            
+            if mode == "customize" and not goods_text:
+                st.info(tr("digital_human.assets.customize_mode"))
+                st.button(
+                    tr("btn.generate"),
+                    type="primary",
+                    use_container_width=True,
+                    disabled=True,
+                    key="digital_human_customize_disable"
+                )
+                return
             
             # Generate button
             if st.button(tr("btn.generate"), type="primary", use_container_width=True, key="digital_human_generate"):
