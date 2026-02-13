@@ -1,0 +1,118 @@
+{
+  "8": {
+    "inputs": {
+      "filename_prefix": "audio/ComfyUI",
+      "audioUI": "",
+      "audio": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "SaveAudio",
+    "_meta": {
+      "title": "保存音频"
+    }
+  },
+  "33": {
+    "inputs": {
+      "model_repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+      "download_source": "ModelScope",
+      "precision": "bf16",
+      "attn_mode": "sdpa",
+      "auto_download": true
+    },
+    "class_type": "Qwen3TTSLoader",
+    "_meta": {
+      "title": "Qwen3-TTS Loader 🚀"
+    }
+  },
+  "35": {
+    "inputs": {
+      "x_vector_only": true,
+      "ref_text": [
+        "40",
+        0
+      ],
+      "model_obj": [
+        "33",
+        0
+      ],
+      "ref_audio": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "Qwen3TTSVoiceClonePrompt",
+    "_meta": {
+      "title": "Qwen3-TTS Clone Prompt 🧠"
+    }
+  },
+  "39": {
+    "inputs": {
+      "target_text": [
+        "41",
+        0
+      ],
+      "target_language": "Chinese",
+      "output_mode": "Concatenate (Merge)",
+      "seed": 107308136313403,
+      "ref_text": "",
+      "instruct": "",
+      "enable_x_vector_instant": false,
+      "max_new_tokens": 2048,
+      "temperature": 0.9,
+      "top_p": 1,
+      "top_k": 50,
+      "repetition_penalty": 1.05,
+      "subtalker_temperature": 0.9,
+      "subtalker_top_p": 1,
+      "subtalker_top_k": 50,
+      "model_obj": [
+        "33",
+        0
+      ],
+      "voice_clone_prompt": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "Qwen3TTSVoiceClone",
+    "_meta": {
+      "title": "Qwen3-TTS Voice Clone 👥"
+    }
+  },
+  "40": {
+    "inputs": {
+      "model_id": "iic/SenseVoiceSmall",
+      "language": "auto",
+      "audio": [
+        "43",
+        0
+      ]
+    },
+    "class_type": "Qwen3TTSSenseVoiceASR",
+    "_meta": {
+      "title": "Qwen3-TTS SenseVoice ASR 🗣️"
+    }
+  },
+  "41": {
+    "inputs": {
+      "value": "哥哥，你回来啦，人家等了[p:1.5]你好久好久了，要抱抱！\nIt's in the top drawer... wait, it's empty?"
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "$text.text!"
+    }
+  },
+  "43": {
+    "inputs": {
+      "audio": "马正阳音频.wav",
+      "start_time": 0,
+      "duration": 0
+    },
+    "class_type": "VHS_LoadAudioUpload",
+    "_meta": {
+      "title": "$ref_audio.audio"
+    }
+  }
+}
