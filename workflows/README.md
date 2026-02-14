@@ -68,7 +68,7 @@ The following workflows should be available in your ComfyUI server and are used 
 **4.2 Generate Voiceover**
 *   Workflow: **`tts_P_Vid_Qwen3_TTS_Voice_Clone_api`**
 *   Purpose: Generates a narrated voiceover from text.
-*   Note: This works in conjunction with the music generation workflow `ace_step_1_5_text_to_music` from `Pixelle-MCP/data/custom_workflows/` to create background music.
+*   Note: This works in conjunction with the music generation workflow `ace_step_1_5_text_to_music` from `Pixelle-MCP/data/custom_workflows/` to create background music. put it in bgm dir
 
 **4.3 Motion Transfer**
 *   Workflow: **`af_P_vid_wan21_video_pose_transfer`**
