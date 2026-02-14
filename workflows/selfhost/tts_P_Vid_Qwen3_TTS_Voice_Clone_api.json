@@ -101,7 +101,7 @@
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
-      "title": "$text.text!"
+      "title": "$text.value!"
     }
   },
   "43": {
